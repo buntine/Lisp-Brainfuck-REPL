@@ -1,0 +1,8 @@
+BRAINFUCK REPL
+  by Andrew Buntine, 2009.
+  info@andrewbuntine.com
+
+ABOUT
+  A Brainfuck REPL (Read->Eval->Print->Loop) implemented in Scheme.
+
+  This is my first non-trivial Scheme program. Please don't take me too seriously!
