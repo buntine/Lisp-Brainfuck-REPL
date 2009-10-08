@@ -1,11 +1,21 @@
+; Brainfuck REPL, version 0.000
+; By Andrew Buntine, 2009
+;
+; Usage:
+;     (load "brainfuck_repl.scm")
+;     (mainloop '((make-vector 100 0) 0))
+
+
 ; Main REPL looping procedure.
 (define mainloop
-  (lambda ()
-    (begin 
-      (display "> ")
-      (display (read-input))
-      (newline))
-  (mainloop)))
+  (lambda (m)
+    (let ((memory (car m))
+          (pointer (cdr m)))
+      (begin 
+        (display "> ")
+        (display (read-input))
+        (newline))
+    (mainloop m))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
 (define read-input
