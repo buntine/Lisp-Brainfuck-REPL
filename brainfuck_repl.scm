@@ -21,8 +21,8 @@
        (lambda (c s)
          (cond ((eof-object? c)
                  (if (null? s)
-                     c
-                     (apply string (reverse s))))
+                   c
+                   (apply string (reverse s))))
                ((char=? c #\newline)
                  (apply string (reverse s)))
                (else
