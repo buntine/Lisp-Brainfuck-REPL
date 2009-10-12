@@ -13,9 +13,17 @@
           (pointer (cdr m)))
       (begin 
         (display "> ")
-        (display (read-input))
+        (define result (brainfuck (read-input) memory pointer))
         (newline))
-    (mainloop m))))
+    (mainloop result))))
+
+; Evaluates a list of chars as a brainfuck program
+; within the context of m, p.
+(define brainfuck
+  (lambda (i m p)
+    (begin
+      (display i)
+      '(m p))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
 (define read-input
