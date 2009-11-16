@@ -1,29 +1,34 @@
-; Brainfuck REPL, version 0.000
+; Brainfuck REPL, version -0.00000000001
 ; By Andrew Buntine, 2009
+;
+; A very basic brainfuck repl (Read -> Evaluate -> Print -> Loop).
+; Brainfuck, an esoteric programming language, was originally
+; designed by Urban Muller in 1993.
 ;
 ; Usage:
 ;     (load "brainfuck_repl.scm")
-;     (mainloop '((make-vector 100 0) 0))
+;     (mainloop (cons (make-vector 100 0) 0))
 
 
-; Main REPL looping procedure.
+; Main REPL looping procedure. Accepts a pair of memory (vector)
+; and an instruction pointer (positive integer).
 (define mainloop
-  (lambda (m)
-    (let ((memory (car m))
-          (pointer (cdr m)))
+  (lambda (state)
+    (let ((memory (car state))
+          (pointer (cdr state)))
       (begin 
         (display "> ")
         (define result (brainfuck (read-input) memory pointer))
         (newline))
     (mainloop result))))
 
-; Evaluates a list of chars as a brainfuck program
-; within the context of m, p.
+; Evaluates a list of chars (i) as a brainfuck program
+; within the state of memory (m) and pointer (p).
 (define brainfuck
   (lambda (i m p)
     (begin
       (display i)
-      '(m p))))
+      (cons m p))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
 (define read-input
