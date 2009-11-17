@@ -17,7 +17,7 @@
     (let ((memory (car state))
           (pointer (cdr state)))
       (begin 
-        (display "> ")
+        (display "-> ")
         (define result (brainfuck (read-input) memory pointer))
         (newline))
     (mainloop result))))
@@ -26,8 +26,16 @@
 ; within the state of memory (m) and pointer (p).
 (define brainfuck
   (lambda (i m p)
-    (begin
-      (display i)
+    (if (pair? i)
+      (begin
+        (display (cond 
+          ((equal? (car i) #\>) 'IncValue)
+          ((equal? (car i) #\<) 'DecValue)
+          ((equal? (car i) #\+) 'IncPointer)
+          ((equal? (car i) #\-) 'DecPointer)
+          ((equal? (car i) #\,) 'StdIn)
+          ((equal? (car i) #\.) 'StdOut)))
+        (brainfuck (cdr i) m p))
       (cons m p))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
