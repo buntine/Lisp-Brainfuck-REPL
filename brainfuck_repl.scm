@@ -22,27 +22,44 @@
         (newline))
     (mainloop result))))
 
+; Instruction: !
+; Prints main memory and the instruction pointer to stdout.
+(define show-state
+  (lambda (m p)
+    (begin
+      (display m)
+      (newline)
+      (display p)
+      (cons m p))))
+
+; Instruction: >
+; Increments the instruction pointer by one.
+(define inc-pointer
+  (lambda (m p)
+    (cons m (+ p 1))))
+
+; Instruction: <
+; Decrements the instruction pointer by one.
+(define dec-pointer
+  (lambda (m p)
+    (cons m (- p 1))))
+
+; A dictionary-like structure which maps instructions to procedures.
+(define instruction-procedures
+  (list `(#\! ,show-state)
+        `(#\> ,inc-pointer)
+        `(#\< ,dec-pointer)))
+
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the state of memory (m) and pointer (p).
 (define brainfuck
   (lambda (i m p)
     (if (pair? i)
       (begin
-        (define state (cond 
-          ((equal? (car i) #\!) (begin               ; Displays memory and pointer state.
-                                  (display m)
-                                  (newline)
-                                  (display p)
-                                  (cons m p)))
-          ((equal? (car i) #\>) (cons m (+ p 1)))
-          ((equal? (car i) #\<) (cons m (- p 1)))
-          ((equal? (car i) #\+) (cons m p))
-          ((equal? (car i) #\-) (cons m p))
-          ((equal? (car i) #\,) (cons m p))
-          ((equal? (car i) #\.) (cons m p))
-          ((equal? (car i) #\[) (cons m p))
-          ((equal? (car i) #\]) (cons m p))
-          (else (cons m p))))
+        (define state ((cadr
+                         (assoc (car i) instruction-procedures)) m p))
+
+        ; Proceed recursively with the remaining instructions.
         (brainfuck (cdr i) (car state) (cdr state)))
       (cons m p))))
 
