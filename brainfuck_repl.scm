@@ -28,14 +28,22 @@
   (lambda (i m p)
     (if (pair? i)
       (begin
-        (display (cond 
-          ((equal? (car i) #\>) 'IncValue)
-          ((equal? (car i) #\<) 'DecValue)
-          ((equal? (car i) #\+) 'IncPointer)
-          ((equal? (car i) #\-) 'DecPointer)
-          ((equal? (car i) #\,) 'StdIn)
-          ((equal? (car i) #\.) 'StdOut)))
-        (brainfuck (cdr i) m p))
+        (define state (cond 
+          ((equal? (car i) #\!) (begin               ; Displays memory and pointer state.
+                                  (display m)
+                                  (newline)
+                                  (display p)
+                                  (cons m p)))
+          ((equal? (car i) #\>) (cons m (+ p 1)))
+          ((equal? (car i) #\<) (cons m (- p 1)))
+          ((equal? (car i) #\+) (cons m p))
+          ((equal? (car i) #\-) (cons m p))
+          ((equal? (car i) #\,) (cons m p))
+          ((equal? (car i) #\.) (cons m p))
+          ((equal? (car i) #\[) (cons m p))
+          ((equal? (car i) #\]) (cons m p))
+          (else (cons m p))))
+        (brainfuck (cdr i) (car state) (cdr state)))
       (cons m p))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
