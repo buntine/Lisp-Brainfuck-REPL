@@ -80,8 +80,8 @@
     (let ((memory (car state))
           (pointer (cdr state)))
       (if (pair? i)
-        (begin
-          (define instruction-proc (assoc (car i) instruction-procedures))
+        (let
+          ((instruction-proc (assoc (car i) instruction-procedures)))
           (if instruction-proc
             ; Proceed recursively with the remaining instructions.
             (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
