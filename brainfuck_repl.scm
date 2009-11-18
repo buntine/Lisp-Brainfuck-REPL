@@ -64,6 +64,16 @@
       (display (integer->char (vector-ref m p)))
       (cons m p))))
 
+; Instruction: ,
+; Reads in a byte and stores it at the current data pointer.
+; Note: The read-input procedure seems to prevent me from 
+;       direct using read-char here.
+(define bf-read-in
+  (lambda (m p)
+    (let ((char (char->integer (car (read-input)))))
+      (cons (vector-set!
+              m p char) p))))
+
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
   (list `(#\! ,bf-show-state)
@@ -71,10 +81,11 @@
         `(#\< ,bf-dec-pointer)
         `(#\+ ,bf-inc-value)
         `(#\- ,bf-dec-value)
-        `(#\. ,bf-print-out)))
+        `(#\. ,bf-print-out)
+        `(#\, ,bf-read-in)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
-; within the context (state) of memory and pointer.
+; within the context (state) of memory and data pointer.
 (define brainfuck
   (lambda (i state)
     (if (pair? i)
