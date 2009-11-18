@@ -77,16 +77,15 @@
 ; within the context (state) of memory and pointer.
 (define brainfuck
   (lambda (i state)
-    (let ((memory (car state))
-          (pointer (cdr state)))
-      (if (pair? i)
-        (let
-          ((instruction-proc (assoc (car i) instruction-procedures)))
-          (if instruction-proc
-            ; Proceed recursively with the remaining instructions.
-            (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
-            (brainfuck (cdr i) state)))
-        state))))
+    (if (pair? i)
+      (let ((memory (car state))
+            (pointer (cdr state))
+            (instruction-proc (assoc (car i) instruction-procedures)))
+        (if instruction-proc
+          ; Proceed recursively with the remaining instructions.
+          (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
+          (brainfuck (cdr i) state)))
+      state)))
 
 ; Reads an arbitrary string of input and returns a list of chars.
 (define read-input
