@@ -11,7 +11,7 @@
 
 
 ; Main REPL looping procedure. Accepts a pair of memory (vector)
-; and an instruction pointer (positive integer).
+; and a data pointer (positive integer).
 (define mainloop
   (lambda (state)
     (begin 
@@ -21,7 +21,7 @@
   (mainloop result)))
 
 ; Instruction: !
-; Prints main memory and the instruction pointer to stdout.
+; Prints main memory and the data pointer to stdout.
 (define show-state
   (lambda (m p)
     (begin
@@ -31,22 +31,38 @@
       (cons m p))))
 
 ; Instruction: >
-; Increments the instruction pointer by one.
+; Increments the data pointer by one.
 (define inc-pointer
   (lambda (m p)
     (cons m (+ p 1))))
 
 ; Instruction: <
-; Decrements the instruction pointer by one.
+; Decrements the data pointer by one.
 (define dec-pointer
   (lambda (m p)
     (cons m (- p 1))))
+
+; Instruction: +
+; Increments the byte at the current data pointer.
+(define inc-value
+  (lambda (m p)
+    (cons (vector-set!
+            m p (+ (vector-ref m p) 1)) p)))
+
+; Instruction: -
+; Decrements the byte at the current data pointer.
+(define dec-value
+  (lambda (m p)
+    (cons (vector-set!
+            m p (- (vector-ref m p) 1)) p)))
 
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
   (list `(#\! ,show-state)
         `(#\> ,inc-pointer)
-        `(#\< ,dec-pointer)))
+        `(#\< ,dec-pointer)
+        `(#\+ ,inc-value)
+        `(#\- ,dec-value)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and pointer.
