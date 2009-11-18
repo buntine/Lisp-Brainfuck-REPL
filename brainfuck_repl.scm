@@ -14,13 +14,11 @@
 ; and an instruction pointer (positive integer).
 (define mainloop
   (lambda (state)
-    (let ((memory (car state))
-          (pointer (cdr state)))
-      (begin 
-        (display "-> ")
-        (define result (brainfuck (read-input) memory pointer))
-        (newline))
-    (mainloop result))))
+    (begin 
+      (display "-> ")
+      (define result (brainfuck (read-input) state))
+      (newline))
+  (mainloop result)))
 
 ; Instruction: !
 ; Prints main memory and the instruction pointer to stdout.
@@ -53,15 +51,18 @@
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the state of memory (m) and pointer (p).
 (define brainfuck
-  (lambda (i m p)
-    (if (pair? i)
-      (begin
-        (define state ((cadr
-                         (assoc (car i) instruction-procedures)) m p))
-
-        ; Proceed recursively with the remaining instructions.
-        (brainfuck (cdr i) (car state) (cdr state)))
-      (cons m p))))
+  (lambda (i state)
+    (let ((memory (car state))
+          (pointer (cdr state)))
+      (if (pair? i)
+        (begin
+          (define instruction-proc (assoc (car i) instruction-procedures))
+          (if instruction-proc
+            ; Proceed recursively with the remaining instructions.
+            (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
+            (brainfuck (cdr i) state)))
+         
+        state))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
 (define read-input
@@ -85,3 +86,5 @@
                  (collect-chars (read-char)
                                 (cons c s)))))))
     (collect-chars (read-char) '())))
+
+(mainloop (cons (make-vector 50 0) 0))
