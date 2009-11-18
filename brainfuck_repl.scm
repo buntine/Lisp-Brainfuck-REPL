@@ -22,7 +22,7 @@
 
 ; Instruction: !
 ; Prints main memory and the data pointer to stdout.
-(define show-state
+(define bf-show-state
   (lambda (m p)
     (begin
       (display m)
@@ -32,37 +32,37 @@
 
 ; Instruction: >
 ; Increments the data pointer by one.
-(define inc-pointer
+(define bf-inc-pointer
   (lambda (m p)
     (cons m (+ p 1))))
 
 ; Instruction: <
 ; Decrements the data pointer by one.
-(define dec-pointer
+(define bf-dec-pointer
   (lambda (m p)
     (cons m (- p 1))))
 
 ; Instruction: +
 ; Increments the byte at the current data pointer.
-(define inc-value
+(define bf-inc-value
   (lambda (m p)
     (cons (vector-set!
             m p (+ (vector-ref m p) 1)) p)))
 
 ; Instruction: -
 ; Decrements the byte at the current data pointer.
-(define dec-value
+(define bf-dec-value
   (lambda (m p)
     (cons (vector-set!
             m p (- (vector-ref m p) 1)) p)))
 
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
-  (list `(#\! ,show-state)
-        `(#\> ,inc-pointer)
-        `(#\< ,dec-pointer)
-        `(#\+ ,inc-value)
-        `(#\- ,dec-value)))
+  (list `(#\! ,bf-show-state)
+        `(#\> ,bf-inc-pointer)
+        `(#\< ,bf-dec-pointer)
+        `(#\+ ,bf-inc-value)
+        `(#\- ,bf-dec-value)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and pointer.
@@ -77,7 +77,6 @@
             ; Proceed recursively with the remaining instructions.
             (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
             (brainfuck (cdr i) state)))
-         
         state))))
 
 ; Reads an arbitrary string of input and returns a list of chars.
