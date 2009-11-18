@@ -49,7 +49,7 @@
         `(#\< ,dec-pointer)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
-; within the state of memory (m) and pointer (p).
+; within the context (state) of memory and pointer.
 (define brainfuck
   (lambda (i state)
     (let ((memory (car state))
