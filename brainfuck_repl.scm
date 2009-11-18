@@ -78,12 +78,12 @@
 (define brainfuck
   (lambda (i state)
     (if (pair? i)
-      (let ((memory (car state))
-            (pointer (cdr state))
-            (instruction-proc (assoc (car i) instruction-procedures)))
-        (if instruction-proc
+      (let ((m (car state))
+            (p (cdr state))
+            (iproc (assoc (car i) instruction-procedures)))
+        (if iproc
           ; Proceed recursively with the remaining instructions.
-          (brainfuck (cdr i) ((cadr instruction-proc) memory pointer))
+          (brainfuck (cdr i) ((cadr iproc) m p))
           (brainfuck (cdr i) state)))
       state)))
 
@@ -110,4 +110,6 @@
                                 (cons c s)))))))
     (collect-chars (read-char) '())))
 
+
+; Fire up the REPL.
 (mainloop (cons (make-vector 50 0) 0))
