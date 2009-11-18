@@ -1,4 +1,4 @@
-; Brainfuck REPL, version -0.00000000001
+; Brainfuck REPL, version (- 1 0.9999)
 ; By Andrew Buntine, 2009
 ;
 ; A very basic brainfuck repl (Read -> Evaluate -> Print -> Loop).
@@ -56,13 +56,22 @@
     (cons (vector-set!
             m p (- (vector-ref m p) 1)) p)))
 
+; Instruction: .
+; Prints the value of the byte at the current data pointer.
+(define bf-print-out
+  (lambda (m p)
+    (begin
+      (display (integer->char (vector-ref m p)))
+      (cons m p))))
+
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
   (list `(#\! ,bf-show-state)
         `(#\> ,bf-inc-pointer)
         `(#\< ,bf-dec-pointer)
         `(#\+ ,bf-inc-value)
-        `(#\- ,bf-dec-value)))
+        `(#\- ,bf-dec-value)
+        `(#\. ,bf-print-out)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and pointer.
