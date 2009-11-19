@@ -5,6 +5,9 @@
 ; Brainfuck, an esoteric programming language, was originally
 ; designed by Urban Muller in 1993.
 ;
+; Main memory is represented as a vector of unrestricted
+; length (you decide).
+;
 ; Usage:
 ;     (load "brainfuck_repl.scm")
 ;     (mainloop (cons (make-vector 100 0) 0))
@@ -20,59 +23,76 @@
       (newline))
   (mainloop result)))
 
+; A helper procedure for the instructions which don't directly
+; affect the position of the instruction pointer.
+(define next-instruction
+  (lambda (m p pos)
+    (list (cons m p) (inc pos))))
+
 ; Instruction: !
 ; Prints main memory and the data pointer to stdout.
 (define bf-show-state
-  (lambda (m p)
+  (lambda (m p i pos)
     (begin
       (display m)
       (newline)
       (display p)
-      (cons m p))))
+      (next-instruction m p pos))))
 
 ; Instruction: >
 ; Increments the data pointer by one.
 (define bf-inc-pointer
-  (lambda (m p)
-    (cons m (inc p))))
+  (lambda (m p i pos)
+    (next-instruction m (inc p) pos)))
 
 ; Instruction: <
 ; Decrements the data pointer by one.
 (define bf-dec-pointer
-  (lambda (m p)
-    (cons m (dec p))))
+  (lambda (m p i pos)
+    (next-instruction m (dec p) pos)))
 
 ; Instruction: +
 ; Increments the byte at the current data pointer.
 (define bf-inc-value
-  (lambda (m p)
-    (cons (vector-set!
-            m p (inc (vector-ref m p))) p)))
+  (lambda (m p i pos)
+    (next-instruction
+      (vector-set!
+        m p (inc (vector-ref m p))) p pos)))
 
 ; Instruction: -
 ; Decrements the byte at the current data pointer.
 (define bf-dec-value
-  (lambda (m p)
-    (cons (vector-set!
-            m p (dec (vector-ref m p))) p)))
+  (lambda (m p i pos)
+    (next-instruction
+      (vector-set!
+        m p (dec (vector-ref m p))) p pos)))
 
 ; Instruction: .
 ; Prints the value of the byte at the current data pointer.
 (define bf-print-out
-  (lambda (m p)
+  (lambda (m p i pos)
     (begin
       (display (integer->char (vector-ref m p)))
-      (cons m p))))
+      (next-instruction m p pos))))
 
 ; Instruction: ,
 ; Reads in a byte and stores it at the current data pointer.
 ; Note: The read-input procedure seems to prevent me from 
 ;       direct using read-char here.
 (define bf-read-in
-  (lambda (m p)
+  (lambda (m p i pos)
     (let ((char (char->integer (car (read-input)))))
-      (cons (vector-set!
-              m p char) p))))
+      (next-instruction
+        (vector-set! m p char)
+        p pos))))
+
+; Instruction: [
+; If the cell at the current data pointer is 0, then jump
+; the instruction pointer forward to the instruction
+; following the matching ].
+(define db-open-loop
+  (lambda (m p i pos)
+    (cons m p)))
 
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
@@ -86,15 +106,18 @@
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and data pointer.
+; The instruction pointer is denoted by pos.
 (define brainfuck
   (lambda (i state pos)
     (if (< pos (length i))
       (let ((m (car state))
             (p (cdr state))
-            (iproc (assoc (list-ref i pos) instruction-procedures)))
+            (iproc (assoc (list-ref i pos)
+                     instruction-procedures)))
         (if iproc
           ; Proceed recursively with the next instruction.
-          (brainfuck i ((cadr iproc) m p) (inc pos))
+          (apply brainfuck
+            (cons i ((cadr iproc) m p i pos)))
           (brainfuck i state (inc pos))))
       state)))
 
