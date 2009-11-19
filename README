@@ -2,10 +2,8 @@ BRAINFUCK REPL
   by Andrew Buntine, 2009.
   info@andrewbuntine.com
 
-(EVENTUAL) ABOUT
-  A Brainfuck REPL (Read->Eval->Print->Loop) implemented in Scheme.
+ABOUT
+  A basic Brainfuck REPL (Read->Eval->Print->Loop) implemented in Scheme.
 
-(CURRENT) ABOUT
-  A useless echo REPL with the concept of a list of memory cells and an instruction pointer.
-
-  This is my first LISP program. Please don't take me (or this code) too seriously!
+FEEDBACK
+  This is my first LISP program. Please give me feedback if I've implemented something horrendously. :)
