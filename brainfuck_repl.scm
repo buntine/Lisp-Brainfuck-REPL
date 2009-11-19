@@ -16,7 +16,7 @@
   (lambda (state)
     (begin 
       (display "-> ")
-      (define result (brainfuck (read-input) state))
+      (define result (brainfuck (read-input) state 0))
       (newline))
   (mainloop result)))
 
@@ -34,27 +34,27 @@
 ; Increments the data pointer by one.
 (define bf-inc-pointer
   (lambda (m p)
-    (cons m (+ p 1))))
+    (cons m (inc p))))
 
 ; Instruction: <
 ; Decrements the data pointer by one.
 (define bf-dec-pointer
   (lambda (m p)
-    (cons m (- p 1))))
+    (cons m (dec p))))
 
 ; Instruction: +
 ; Increments the byte at the current data pointer.
 (define bf-inc-value
   (lambda (m p)
     (cons (vector-set!
-            m p (+ (vector-ref m p) 1)) p)))
+            m p (inc (vector-ref m p))) p)))
 
 ; Instruction: -
 ; Decrements the byte at the current data pointer.
 (define bf-dec-value
   (lambda (m p)
     (cons (vector-set!
-            m p (- (vector-ref m p) 1)) p)))
+            m p (dec (vector-ref m p))) p)))
 
 ; Instruction: .
 ; Prints the value of the byte at the current data pointer.
@@ -87,15 +87,15 @@
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and data pointer.
 (define brainfuck
-  (lambda (i state)
-    (if (pair? i)
+  (lambda (i state pos)
+    (if (< pos (length i))
       (let ((m (car state))
             (p (cdr state))
-            (iproc (assoc (car i) instruction-procedures)))
+            (iproc (assoc (list-ref i pos) instruction-procedures)))
         (if iproc
-          ; Proceed recursively with the remaining instructions.
-          (brainfuck (cdr i) ((cadr iproc) m p))
-          (brainfuck (cdr i) state)))
+          ; Proceed recursively with the next instruction.
+          (brainfuck i ((cadr iproc) m p) (inc pos))
+          (brainfuck i state (inc pos))))
       state)))
 
 ; Reads an arbitrary string of input and returns a list of chars.
@@ -121,6 +121,15 @@
                                 (cons c s)))))))
     (collect-chars (read-char) '())))
 
+; Increments the argument by one.
+(define inc
+  (lambda (n)
+    (+ n 1)))
+
+; Decrements the argument by one.
+(define dec
+  (lambda (n)
+    (- n 1)))
 
 ; Fire up the REPL.
 (mainloop (cons (make-vector 50 0) 0))
