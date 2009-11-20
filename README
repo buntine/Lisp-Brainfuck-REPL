@@ -3,7 +3,21 @@ BRAINFUCK REPL
   info@andrewbuntine.com
 
 ABOUT
-  A basic Brainfuck REPL (Read->Eval->Print->Loop) implemented in Scheme.
+  A very basic brainfuck repl (Read -> Evaluate -> Print -> Loop)
+  implemented in Scheme.
+  Brainfuck, an esoteric programming language, was originally
+  designed by Urban Muller in 1993.
+ 
+  Main memory is represented as a vector of unrestricted
+  length (you decide).
+ 
+  I've added two additional instructions:
+    ! : Prints the contents of memory and the instruction
+        pointer to stdout.
+    @ : Resets all machine state (clears memory, pointers).
+ 
+  Usage (tested with tinyscheme):
+      (load "brainfuck_repl.scm")
 
 FEEDBACK
   This is my first LISP program. Please give me feedback if I've implemented something horrendously. :)
