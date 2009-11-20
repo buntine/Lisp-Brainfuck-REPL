@@ -115,7 +115,7 @@
   (lambda (m p i pos)
     (if (not (zero? (vector-ref m p)))
       (next-instruction m p
-        (find-matching-brace i (dec pos) 0))
+        (find-loop-start i (dec pos) 0))
       (next-instruction m p pos))))
 
 ; Recurses forwards through an instruction set looking
