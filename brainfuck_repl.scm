@@ -90,9 +90,31 @@
 ; If the cell at the current data pointer is 0, then jump
 ; the instruction pointer forward to the instruction
 ; following the matching ].
-(define db-open-loop
+(define bf-open-loop
   (lambda (m p i pos)
-    (cons m p)))
+    (if (zero? (vector-ref m p))
+      (next-instruction m p
+        (find-loop-end i (inc pos) 0))
+      (next-instruction m p pos))))
+
+; Recurses through an instruction set looking for the
+; matching ] instruction.
+(define find-loop-end
+  (lambda (i pos nest)
+    (let ((instruction (list-ref i pos)))
+      (cond
+        ; Neither open or close, just move on.
+        ((not (or
+                (equal? instruction #\])
+                (equal? instruction #\[))) (find-matching i (inc pos) nest))
+        ; Close loop, make sure it's not nested.
+        ((equal? instruction #\])
+           (if (zero? nest)
+             pos
+             (find-matching i (inc pos) (dec nest))))
+        ; Open loop, increase the nest count.
+        ((equal? instruction #\[)
+          (find-matching i (inc pos) (inc nest)))))))
 
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
@@ -102,7 +124,8 @@
         `(#\+ ,bf-inc-value)
         `(#\- ,bf-dec-value)
         `(#\. ,bf-print-out)
-        `(#\, ,bf-read-in)))
+        `(#\, ,bf-read-in)
+        `(#\[ ,bf-open-loop)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and data pointer.
