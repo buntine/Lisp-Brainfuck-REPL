@@ -1,5 +1,5 @@
 ; Brainfuck REPL, version (- 1 0.9999)
-; By Andrew Buntine, 2009
+; By Andrew Buntine, 2009. info@andrewbuntine.com
 ;
 ; A very basic brainfuck repl (Read -> Evaluate -> Print -> Loop).
 ; Brainfuck, an esoteric programming language, was originally
@@ -8,9 +8,8 @@
 ; Main memory is represented as a vector of unrestricted
 ; length (you decide).
 ;
-; Usage:
+; Usage (tested with tinyscheme):
 ;     (load "brainfuck_repl.scm")
-;     (mainloop (cons (make-vector 100 0) 0))
 
 
 ; Main REPL looping procedure. Accepts a pair of memory (vector)
@@ -212,5 +211,6 @@
   (lambda (n)
     (- n 1)))
 
-; Fire up the REPL.
-(mainloop (cons (make-vector 50 0) 0))
+
+; Now, lets fire up the REPL.
+(mainloop (cons (make-vector 60 0) 0))
