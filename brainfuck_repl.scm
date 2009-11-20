@@ -97,24 +97,58 @@
         (find-loop-end i (inc pos) 0))
       (next-instruction m p pos))))
 
+; Instruction: ]
+; If the cell at the current data pointer is > 0, then jump
+; the instruction pointer backwards to the instruction
+; following the matching [.
+(define bf-close-loop
+  (lambda (m p i pos)
+    (if (not (zero? (vector-ref m p)))
+      (next-instruction m p
+        (find-loop-start i (dec pos) 0))
+      (next-instruction m p pos))))
+
 ; Recurses forwards through an instruction set looking
 ; for the matching ] instruction.
 (define find-loop-end
   (lambda (i pos nest)
-    (let ((instruction (list-ref i pos)))
-      (cond
-        ; Neither open or close, just move on.
-        ((not (or
-                (equal? instruction #\])
-                (equal? instruction #\[))) (find-loop-end i (inc pos) nest))
-        ; Close loop, make sure it's not nested.
-        ((equal? instruction #\])
-           (if (zero? nest)
-             pos
-             (find-loop-end i (inc pos) (dec nest))))
-        ; Open loop, increase the nest count.
-        ((equal? instruction #\[)
-          (find-loop-end i (inc pos) (inc nest)))))))
+    (if (>= pos (length i))
+      (begin
+        (display "Syntax error: No matching close brace")
+        (dec pos))
+      (let ((instruction (list-ref i pos)))
+        (cond
+          ; Close loop, make sure it's not nested.
+          ((equal? instruction #\])
+             (if (zero? nest)
+               pos
+               (find-loop-end i (inc pos) (dec nest))))
+          ; Open loop, increase the nest count.
+          ((equal? instruction #\[)
+            (find-loop-end i (inc pos) (inc nest)))
+          ; Neither open or close, just move on.
+          (else (find-loop-end i (inc pos) nest)))))))
+
+; Recurses backwards through an instruction set looking
+; for the matching [ instruction.
+(define find-loop-start
+  (lambda (i pos nest)
+    (if (< pos 0)
+      (begin
+        (display "Syntax error: No matching open brace")
+        (dec (length i)))
+      (let ((instruction (list-ref i pos)))
+        (cond
+          ; Close loop, increase the nest count.
+          ((equal? instruction #\])
+            (find-loop-start i (dec pos) (inc nest)))
+          ; Open loop, make sure it's not nested.
+          ((equal? instruction #\[)
+             (if (zero? nest)
+               pos
+               (find-loop-start i (dec pos) (dec nest))))
+          ; Neither open or close, just move on.
+          (else (find-loop-start i (dec pos) nest)))))))
 
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
@@ -125,7 +159,8 @@
         `(#\- ,bf-dec-value)
         `(#\. ,bf-print-out)
         `(#\, ,bf-read-in)
-        `(#\[ ,bf-open-loop)))
+        `(#\[ ,bf-open-loop)
+        `(#\] ,bf-close-loop)))
 
 ; Evaluates a list of chars (i) as a brainfuck program
 ; within the context (state) of memory and data pointer.
