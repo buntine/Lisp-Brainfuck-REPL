@@ -8,6 +8,11 @@
 ; Main memory is represented as a vector of unrestricted
 ; length (you decide).
 ;
+; I've added two additional instructions:
+;   ! : Prints the contents of memory and the instruction
+;       pointer to stdout.
+;   @ : Resets all machine state (clears memory, pointers).
+;
 ; Usage (tested with tinyscheme):
 ;     (load "brainfuck_repl.scm")
 
@@ -33,22 +38,30 @@
 (define bf-show-state
   (lambda (m p i pos)
     (begin
-      (display m)
-      (newline)
-      (display p)
+      (display m) (newline)
+      (display p) (newline)
       (next-instruction m p pos))))
+
+; Instruction: @
+; Erases all machine state. 
+(define bf-reboot
+  (lambda (m p i pos)
+    (next-instruction
+      (make-vector (vector-length m) 0) 0 pos)))
 
 ; Instruction: >
 ; Increments the data pointer by one.
 (define bf-inc-pointer
   (lambda (m p i pos)
-    (next-instruction m (inc p) pos)))
+    (next-instruction m
+      (if (< p (vector-length m)) (inc p) p) pos)))
 
 ; Instruction: <
 ; Decrements the data pointer by one.
 (define bf-dec-pointer
   (lambda (m p i pos)
-    (next-instruction m (dec p) pos)))
+    (next-instruction m
+      (if (> p 0) (dec p) 0) pos)))
 
 ; Instruction: +
 ; Increments the byte at the current data pointer.
@@ -76,11 +89,9 @@
 
 ; Instruction: ,
 ; Reads in a byte and stores it at the current data pointer.
-; Note: The read-input procedure seems to prevent me from 
-;       direct using read-char here.
 (define bf-read-in
   (lambda (m p i pos)
-    (let ((char (char->integer (car (read-input)))))
+    (let ((char (char->integer (read-char))))
       (next-instruction
         (vector-set! m p char)
         p pos))))
@@ -104,7 +115,7 @@
   (lambda (m p i pos)
     (if (not (zero? (vector-ref m p)))
       (next-instruction m p
-        (find-loop-start i (dec pos) 0))
+        (find-matching-brace i (dec pos) 0))
       (next-instruction m p pos))))
 
 ; Recurses forwards through an instruction set looking
@@ -152,6 +163,7 @@
 ; A dictionary-like structure which maps instructions to procedures.
 (define instruction-procedures
   (list `(#\! ,bf-show-state)
+        `(#\@ ,bf-reboot)
         `(#\> ,bf-inc-pointer)
         `(#\< ,bf-dec-pointer)
         `(#\+ ,bf-inc-value)
@@ -182,7 +194,7 @@
 (define read-input
   (lambda ()
     (let ((in (read-line)))
-      (string->list in))))
+        (string->list in))))
 
 ; Reads a line of chars from STDIN port. Returns a string.
 ; Credit: Nils M Holm (http://www.bcl.hamilton.ie/~nmh/t3x.org/zzz).
@@ -191,11 +203,13 @@
     ((collect-chars
        (lambda (c s)
          (cond ((eof-object? c)
-                 (if (null? s)
-                   c
-                   (apply string (reverse s))))
+                  (if (null? s)
+                    c
+                    (apply string (reverse s))))
                ((char=? c #\newline)
-                 (apply string (reverse s)))
+                  (if (null? s)
+                    ""
+                    (apply string (reverse s))))
                (else
                  (collect-chars (read-char)
                                 (cons c s)))))))
