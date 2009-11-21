@@ -91,9 +91,12 @@
 ; Reads in a byte and stores it at the current data pointer.
 (define bf-read-in
   (lambda (m p i pos)
-    (let ((char (char->integer (read-char))))
-      (next-instruction
-        (vector-set! m p char)
+    (let ((in (read-input)))
+      (next-instruction 
+        (if (not (null? in))
+          (vector-set! m p
+            (char->integer (car in)))
+          m)
         p pos))))
 
 ; Instruction: [
