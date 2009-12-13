@@ -7,6 +7,9 @@ ABOUT
   implemented in Scheme.
   Brainfuck, an esoteric programming language, was originally
   designed by Urban Muller in 1993.
+
+  You will probably notice that it's really more like a REL, as
+  brainfuck instructions don't have explicit values.
  
   Main memory is represented as a vector of unrestricted
   length (you decide).
@@ -18,6 +21,8 @@ ABOUT
  
   Usage (tested with tinyscheme):
       (load "brainfuck_repl.scm")
+
+  To end the REPL, just type Ctrl+c.
 
 FEEDBACK
   This is my first LISP program. Please give me feedback if I've implemented something horrendously. :)
